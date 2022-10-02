@@ -22,10 +22,10 @@ Details: With Pastify, you have access to past questions form 2018 to present ac
 
 Past question application	1
 * ### Admin 
- * Approve document
- * Delete document
- * Search users
- * User growth count
- * User count (Daily, weekly, monthly)
- * Comments section under each past question (for complain purposes)
+   * Approve document
+   * Delete document
+   * Search users
+   * User growth count
+   * User count (Daily, weekly, monthly)
+    * Comments section under each past question (for complain purposes)
 
