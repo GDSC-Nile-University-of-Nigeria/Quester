@@ -1,6 +1,6 @@
 # Quester
 ## Project Lead: Hanif Adedotun
-# #Project Manager: Raji Muhammad
+## Project Manager: Raji Muhammad
 Details: With Pastify, you have access to past questions form 2018 to present across all departments, easy to access and can be downloaded as a group of images or pdf document. Users have the ability to upload a past question which will be verified by the admin before it is added to the database.
 # Name:Quester, 
 ### Technologies: NextJs, Flutter/React Native, Firebase, Google Cloud
@@ -21,7 +21,7 @@ Details: With Pastify, you have access to past questions form 2018 to present ac
 * Email Notification
 
 Past question application	1
-*### Admin 
+* ### Admin 
  * Approve document
  * Delete document
  * Search users
