@@ -20,7 +20,7 @@ Details: With Quester, you have access to past questions form 2018 to present ac
 * FAB (add a past question)
 * Email Notification
 
-Past question application	1
+Past question application	
 * ### Admin 
    * Approve document
    * Delete document
