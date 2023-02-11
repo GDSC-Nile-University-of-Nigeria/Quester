@@ -13,7 +13,7 @@ const LoginPage: NextPage = () => {
 
     auth.onAuthStateChanged((user) => {
         if(user){
-            router.push('/home')
+            router.push('/dashboard/home')
         }
     })
 
