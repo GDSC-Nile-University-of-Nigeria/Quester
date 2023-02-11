@@ -12,12 +12,17 @@ export const Tabs: React.FC = () => {
         <footer className={styles.footer}>
             <div className={styles.container}>
 
-                <Link href={'/home'} className={styles.tab} title="Home">
-                   <MdHome 
-                        size={25}
-                        className={`${router.pathname === '/home' ? styles.active: styles.inactive}`} 
-                    />
-                </Link>
+                <span 
+                    className={styles.tab} 
+                    title="Home"
+                >
+                   <Link href={'/home'}>
+                        <MdHome 
+                            size={25}
+                            className={`${router.pathname === '/home' ? styles.active: styles.inactive}`} 
+                        />
+                   </Link>
+                </span>
 
                 <span className={styles.tab} title="Downloads">
                     <MdDownload 
