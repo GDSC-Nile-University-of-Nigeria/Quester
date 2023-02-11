@@ -6,15 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "static": "next build && next export"
   },
   "dependencies": {
+    "@capacitor/android": "^4.6.1",
+    "@capacitor/camera": "^4.1.4",
     "@capacitor/cli": "^4.6.1",
     "@capacitor/core": "^4.6.1",
+    "@capacitor/filesystem": "^4.1.4",
+    "@capacitor/ios": "^4.6.1",
+    "@ionic/pwa-elements": "^3.1.1",
     "firebase": "^9.14.0",
     "next": "12.2.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.7.1",
     "sass": "^1.56.1",
     "swiper": "^8.4.5"
   },
