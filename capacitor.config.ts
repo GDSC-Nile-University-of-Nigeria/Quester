@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'io.quester',
   appName: 'quester',
-  webDir: 'public',
+  webDir: 'out',
   bundledWebRuntime: false
 };
 
