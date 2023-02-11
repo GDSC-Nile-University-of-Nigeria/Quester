@@ -1,10 +1,39 @@
 import { NextPage } from "next";
 import Image from "next/image";
 import { Input } from "../../components/Input";
-import styles from "./login.module.scss"
+import styles from "./login.module.scss";
+import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import { auth } from "../../environments/firebase.utils";
+import { useEffect, useLayoutEffect } from "react";
+import { useRouter } from "next/router";
 
 
 const LoginPage: NextPage = () => {
+    const router = useRouter();
+
+    auth.onAuthStateChanged((user) => {
+        if(user){
+            router.push('/home')
+        }
+    })
+
+    const loginWithEmail = async (e:any) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const entries = Object.fromEntries(data)
+
+        try {
+            await signInWithEmailAndPassword(auth, entries.email as string, entries.password as string)
+            alert("sucesss")
+            router.push("/home")
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    const loginWithMicrosoft = async () => {
+
+    }
     return(
         <main>
             <div className={styles.logo}>
@@ -12,7 +41,7 @@ const LoginPage: NextPage = () => {
                 <p>Go back in time to discover the future</p>
             </div>
 
-            <form>
+            <form onSubmit={loginWithEmail}>
                 <Input
                     labelName="Email Address"
                     placeholder="quester@edu.ng"
