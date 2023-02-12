@@ -1,10 +1,10 @@
 export interface PastQuestion {
-    id: string;
+    id?: string;
     department: string;
     course: {
-        code: string;
         name: string;
         level: string;
     },
     year: string;
+    image_url: string;
 }

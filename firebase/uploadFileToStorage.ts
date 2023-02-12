@@ -14,7 +14,7 @@ export const uploadPicture = async (pathToPicture:string, base64String:string) =
 }
 
 //This function uploads a file to cloud storage
-export const uploadFile = async (pathToFile:string, file:Blob) => {
+export const uploadFile = async (pathToFile:string, file:any) => {
     try {
         const fileRef = ref(storage, pathToFile);
         const uploadResult = await uploadBytes(fileRef, file)
