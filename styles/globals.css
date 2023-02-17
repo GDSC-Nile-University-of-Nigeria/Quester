@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 :root {
   --primary: #1E4CA1;
   --secondary: #82C971;
+}
+
+h1, h2, h3 {
+  font-family: 'Poppins', sans-serif;
 }

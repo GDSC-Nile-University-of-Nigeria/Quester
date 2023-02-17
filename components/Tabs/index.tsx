@@ -19,7 +19,7 @@ export const Tabs: React.FC = () => {
                    <Link href={'/dashboard/home'}>
                         <MdHome 
                             size={25}
-                            className={`${router.pathname === '/home' ? styles.active: styles.inactive}`} 
+                            className={`${router.pathname === '/dashboard/home' ? styles.active: styles.inactive}`} 
                         />
                    </Link>
                 </span>
@@ -42,10 +42,12 @@ export const Tabs: React.FC = () => {
                 </span>
 
                 <span className={styles.tab}>
-                    <FaUser 
-                        size={25}
-                        className={`${router.pathname === '/dashboard/profile' ? styles.active: null}`}
-                    />
+                    <Link href="/dashboard/profile">
+                        <FaUser 
+                            size={25}
+                            className={`${router.pathname === '/dashboard/profile' ? styles.active: null}`}
+                        />
+                    </Link>
                 </span>
 
                 <span className={styles.tab}>

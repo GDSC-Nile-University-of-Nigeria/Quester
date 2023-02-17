@@ -9,8 +9,10 @@ import { getPhoto } from "../../helpers/getPhotoFromCamera";
 import { addNewDocument, uploadFile, uploadPicture } from "../../firebase"; 
 import styles from "./styles.module.scss";
 import { useRef, useState } from "react";
-import { getFile } from "../../helpers/getPhotoFromFilesystem";
-import { PastQuestion } from "../../types";
+import { Level, PastQuestion } from "../../types";
+import { Select } from "../../components/Input/select";
+import { DEPARTMENTS } from "../../helpers/departments";
+import { showToast } from "../../helpers/showToast";
 
 const AddQuestionPaper: NextPage = () => {
     const [pastQuestion, setPastQuestion] = useState<{
@@ -36,8 +38,8 @@ const AddQuestionPaper: NextPage = () => {
 
     const upload = async (e:any) => {
         e.preventDefault();
-        if(!pastQuestion) return;
-        
+        if(!pastQuestion) return
+
         const data = new FormData(e.target);
         const entries = Object.fromEntries(data);
         const title = entries.title.toString().replaceAll(' ', '-')
@@ -48,14 +50,14 @@ const AddQuestionPaper: NextPage = () => {
                 department: entries.department as string,
                 course: {
                     name: title,
-                    level: entries.level as string
+                    level: entries.level as Level
                 },
                 year: entries.year as string,
                 image_url: url as string
             }
             
             const firestoreWrite = await addNewDocument('past-puestions', data)
-            alert(firestoreWrite)
+            firestoreWrite === 'success' ? showToast("Sucessfully added") : showToast("Failed to add")
 
 
         } else if(pastQuestion.source === 'file') {
@@ -64,7 +66,7 @@ const AddQuestionPaper: NextPage = () => {
                 department: entries.department as string,
                 course: {
                     name: title,
-                    level: entries.level as string
+                    level: entries.level as Level
                 },
                 year: entries.year as string,
                 image_url: url as string
@@ -72,7 +74,7 @@ const AddQuestionPaper: NextPage = () => {
 
             
             const firestoreWrite = await addNewDocument('past-puestions', data)
-            alert(firestoreWrite)
+            firestoreWrite === 'success' ? showToast("Sucessfully added") : showToast("Failed to add")
         }
         //Change Alert to Something Better
     }
@@ -90,16 +92,32 @@ const AddQuestionPaper: NextPage = () => {
                     placeholder="2020"
                     name="year"
                 />
-                <Input
+                <Select
                     labelName="Department"
                     placeholder="eg. Computer Science"
                     name="department"
-                />
-                <Input
+                >
+                {
+                    DEPARTMENTS.map((department) => (
+                        <option key={department.id} value={department.name}>
+                            {department.name}
+                        </option>
+                    ))
+                }
+                </Select>
+                <Select
                     labelName="Level"
                     placeholder="What level is this course taken?"
-                    name="department"
-                />
+                    name="level"
+                >
+                    <option value="100">100 Level</option>
+                    <option value="200">200 Level</option>
+                    <option value="300">300 Level</option>
+                    <option value="400">400 Level</option>
+                    <option value="500">500 Level</option>
+                    <option value="600">600 Level</option>
+                    <option value="Postgraduate">Postgraduate</option>
+                </Select>
 
 
                 {

@@ -34,9 +34,9 @@ export const getDocumentsFromFirestore = async (query:Query, realtimeUpdates:boo
     const ref = query;
     
     try {
+        let documents: any[] = [];
 
         if(realtimeUpdates) {
-            let documents: any[] = [];
             onSnapshot(ref, {
                 next: ((snapshot) => {
                     snapshot.forEach(doc => {
@@ -48,13 +48,16 @@ export const getDocumentsFromFirestore = async (query:Query, realtimeUpdates:boo
                     console.error(error.code, error.message)
                 })
             })
-            return documents;
-    
+            
         } else {
-            const documents = await getDocs(ref)
-            return documents
+            
+            const docs = await getDocs(ref)
+            docs.forEach(doc => {
+                documents = [...documents, doc.data()]
+            })
         }
-    
+        
+        return documents || [];
     } catch (e) {
         console.error(e)
     }

@@ -1,0 +1,15 @@
+.ProfileHeader {
+    display: flex;
+    align-items: center;
+}
+
+.ProfileHeader :is(h2, p){
+    margin: 5px 0;
+}
+
+.EditProfile {
+
+    input {
+        width: 100%;
+    }
+}
