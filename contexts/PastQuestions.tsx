@@ -1,9 +1,9 @@
 import { createContext } from "react";
 import { PastQuestion } from "../types";
 interface PastQuestionsContext {
-    past_questions: PastQuestion[]
+    pastQuestions: PastQuestion[]
 }
 
 export const PastQuestionsContext = createContext<PastQuestionsContext>({
-    past_questions: []
+    pastQuestions: [],
 })
