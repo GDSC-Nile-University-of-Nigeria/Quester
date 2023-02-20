@@ -53,7 +53,8 @@ const AddQuestionPaper: NextPage = () => {
                     level: entries.level as Level
                 },
                 year: entries.year as string,
-                image_url: url as string
+                image_url: url as string,
+                type: entries.type as "Midterm"|"Final Exam"|"Quiz"
             }
             
             const firestoreWrite = await addNewDocument('past-puestions', data)
@@ -61,7 +62,7 @@ const AddQuestionPaper: NextPage = () => {
 
 
         } else if(pastQuestion.source === 'file') {
-            const url = await uploadFile(`files/${title}-${entries.year}`, pastQuestion.data)
+            const url = await uploadFile(`files/${title}-${entries.type}-${entries.year}`, pastQuestion.data)
             const data: PastQuestion = {
                 department: entries.department as string,
                 course: {
@@ -69,7 +70,8 @@ const AddQuestionPaper: NextPage = () => {
                     level: entries.level as Level
                 },
                 year: entries.year as string,
-                image_url: url as string
+                image_url: url as string,
+                type: entries.type as "Midterm"|"Final Exam"|"Quiz"
             }
 
             
@@ -117,6 +119,15 @@ const AddQuestionPaper: NextPage = () => {
                     <option value="500">500 Level</option>
                     <option value="600">600 Level</option>
                     <option value="Postgraduate">Postgraduate</option>
+                </Select>
+
+                <Select
+                    labelName="Type"
+                    placeholder="Midterm or Final Exam"
+                    name="type"
+                >
+                    <option value="Midterm">Midterm</option>
+                    <option value="Final Exam">Final Exam</option>
                 </Select>
 
 
