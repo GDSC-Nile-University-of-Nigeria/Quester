@@ -2,14 +2,17 @@ import { NextPage } from "next";
 import Image from "next/image";
 import { Input } from "../../components/Input";
 import styles from "./login.module.scss";
-import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../environments/firebase.utils";
-import { useEffect, useLayoutEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
-
+import { AlertColor } from "@mui/material";
+import { Toast } from "../../components/Toast";
 
 const LoginPage: NextPage = () => {
     const router = useRouter();
+    const [toast, setToast] = useState<{
+        open: boolean; message: string, color?:AlertColor}>({ open: false, message: '' });
 
     auth.onAuthStateChanged((user) => {
         if(user){
@@ -24,10 +27,10 @@ const LoginPage: NextPage = () => {
 
         try {
             await signInWithEmailAndPassword(auth, entries.email as string, entries.password as string)
-            alert("sucesss")
-            router.push("/home")
-        } catch (err) {
-            console.log(err)
+            setToast({ open: true, message: "Sign In Sucessful", color: "success" });
+            router.push("/dashboard/home")
+        } catch (err:any) {
+            setToast({ open: true, message: err.code, color: "error" });
         }
     }
 
@@ -68,6 +71,11 @@ const LoginPage: NextPage = () => {
                 <img src="/images/microsoft.svg" alt="microsoft logo"/>
                 Login with Microsoft
             </button>
+            <Toast
+                isOpen={toast.open}
+                message={toast.message}
+                onClose={() => setToast({ open: false, message: "" })}
+            />
         </main>
     )
 }
