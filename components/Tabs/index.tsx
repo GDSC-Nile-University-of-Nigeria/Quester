@@ -24,11 +24,16 @@ export const Tabs: React.FC = () => {
                    </Link>
                 </span>
 
-                <span className={styles.tab} title="Downloads">
-                    <MdDownload 
-                        size={25}
-                        className={`${router.pathname === '/dashboard/downloads' ? styles.active: null}`}
-                    />
+                <span 
+                    className={styles.tab} 
+                    title="Downloads"
+                >
+                    <Link href={'/dashboard/downloads'}>
+                        <MdDownload 
+                            size={25}
+                            className={`${router.pathname === '/dashboard/downloads' ? styles.active: null}`}
+                        />                        
+                    </Link>
                 </span>
 
                 <span className={styles.tab}>

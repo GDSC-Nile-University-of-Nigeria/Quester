@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { auth } from '../environments/firebase.utils'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { Button } from '@mui/material'
 
 export default function Home() {
   const router = useRouter();
@@ -17,6 +18,11 @@ export default function Home() {
     })
   })
 
+  const buttonProps = {
+    textTransform: 'capitalize',
+    width: '100%',
+  }
+
   return (
     <div>
       <Head>
@@ -25,9 +31,21 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Link href="/login">
-        Go to Login
-      </Link>
+      <section className='flex items-center justify-center'>
+        <img src="/images/logo.svg"/>
+
+        <h2>Welcome to Quester</h2>
+
+        <Button variant='contained' sx={buttonProps} href='/login'>
+          Login
+        </Button>
+
+        <Button sx={buttonProps} href='/signin'>
+          Sign Up
+        </Button>
+
+      </section>
+
     </div>
   )
 }
