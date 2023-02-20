@@ -21,7 +21,7 @@ export const getDocumentFromFirestore = async (pathToDocument:string, realtimeUp
             return document;
         } else {
             const document = await getDoc(ref);
-            return document;
+            return document.data();
         }
 
     } catch (e) {
