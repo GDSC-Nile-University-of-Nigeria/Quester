@@ -1,10 +1,7 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
 import { useEffect } from 'react'
 import { auth } from '../environments/firebase.utils'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 import { Button } from '@mui/material'
 
 export default function Home() {
@@ -40,7 +37,7 @@ export default function Home() {
           Login
         </Button>
 
-        <Button sx={buttonProps} href='/signin'>
+        <Button sx={buttonProps} href='/sign-up'>
           Sign Up
         </Button>
 
