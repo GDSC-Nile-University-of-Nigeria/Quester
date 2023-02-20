@@ -6,7 +6,9 @@ import { Avatar, SxProps, Tab, TextField } from "@mui/material";
 import { Tabs } from "../../components/Tabs";
 import styles from "../../styles/profile.module.scss";
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
-import { uploadPicture } from "../../firebase";
+import { getDocumentFromFirestore, uploadPicture } from "../../firebase";
+import { useQuery } from "@tanstack/react-query";
+import { User } from "../../types";
 
 const ProfilePage: NextPage = () => {
     const { currentUser } = auth;
@@ -40,6 +42,13 @@ const ProfilePage: NextPage = () => {
         margin: "5px 0"
     }
 
+    const { isLoading, data:profile } = useQuery(["user-profile"], async () => {
+        if(!currentUser) return;
+        const data = await getDocumentFromFirestore(`users/${currentUser?.uid}`, false)
+        return data as User
+    })
+
+
     return(
         <main>
             <section className={styles.ProfileHeader}>
@@ -50,7 +59,7 @@ const ProfilePage: NextPage = () => {
                 />
                 <div>
                     <h2>{currentUser?.displayName}</h2>
-                    <p>Level: 400</p>
+                    <p>{profile?.level + " Level"}</p>
                 </div>
             </section>
 
@@ -65,17 +74,20 @@ const ProfilePage: NextPage = () => {
                     sx={inputStyles}
                     name="idNumber"
                     label="ID Number"
+                    value={profile?.student_id}
                 />
                 <TextField
                     sx={inputStyles}
                     name="level"
                     label="Level"
+                    value={profile?.level}
                 />
                 <TextField
                     sx={inputStyles}
                     type="email"
                     name="email"
                     label="Email"
+                    value={profile?.email}
                 />
 
             </form>
