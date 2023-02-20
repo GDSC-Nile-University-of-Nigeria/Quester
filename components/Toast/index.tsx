@@ -20,3 +20,8 @@ export const Toast: React.FC<ToastProps> =
         )
 
 }
+
+Toast.defaultProps = {
+    duration: 3000,
+    color: "info"
+}
