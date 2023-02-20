@@ -5,22 +5,28 @@ import { PastQuestionsContext } from "../contexts/PastQuestions"
 import { getDocumentsFromFirestore } from "../firebase";
 import { collection } from 'firebase/firestore';
 import { firestore } from '../environments/firebase.utils';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 function MyApp({ Component, pageProps }) {
   const ref = collection(firestore, "past-questions");
-  const [pastQuestionsArray, setPastQuestions] = useState([])
 
   useEffect(() => {
     defineCustomElements(window)
 
-    const docs = getDocumentsFromFirestore(ref, false);
-    docs.then(val => setPastQuestions(val))
   })
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      }
+    }
+  });
+
   return (
-    <PastQuestionsContext.Provider value={pastQuestionsArray}>
+    <QueryClientProvider client={queryClient}>
       <Component {...pageProps} />
-    </PastQuestionsContext.Provider>
+    </QueryClientProvider>
   )
 }
 
