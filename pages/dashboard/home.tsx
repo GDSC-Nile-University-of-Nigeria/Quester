@@ -83,7 +83,7 @@ const HomePage: NextPage = () => {
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText 
-                                    primary={question.course.name.replaceAll("-", " ")}
+                                    primary={question.course.name.replaceAll("-", " ") + " " + question?.type}
                                     secondary={question.year}
                                 />
                             </ListItem>
