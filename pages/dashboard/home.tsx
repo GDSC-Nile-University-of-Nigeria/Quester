@@ -17,12 +17,9 @@ import Head from "next/head";
 const HomePage: NextPage = () => {
     const { currentUser } = auth;
     const [queryString, setQueryString] = useState("");
-    const { debouncedValue } = useDebouce(queryString);
+    //const { debouncedValue } = useDebouce(queryString);
     const ref = collection(firestore, "past-questions");
 
-    useEffect(() => {
-        console.log(debouncedValue)
-    }, [queryString])
 
     const { isLoading, data } = useQuery(["recent-past-questions"], async () => {
         const data = await getDocumentsFromFirestore(ref, false)
@@ -68,6 +65,7 @@ const HomePage: NextPage = () => {
                         !isLoading && data === undefined ? <p>Noquestions have been added yet</p>:
                         data?.map((question:PastQuestion) => (
                             <ListItem
+                                key={`${question.course.name}-${question.year}`}
                                 secondaryAction={
                                     <IconButton 
                                         onClick={() => addToDownloads(question)}

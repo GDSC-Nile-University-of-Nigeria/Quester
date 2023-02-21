@@ -84,7 +84,7 @@ const SigninPage: NextPage = () => {
                 >
                     {
                         DEPARTMENTS.map(department => (
-                            <option value={department.name}>
+                            <option key={department.id} value={department.name}>
                                 {department.name}
                             </option>
                         ))
