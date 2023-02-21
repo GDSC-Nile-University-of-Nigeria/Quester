@@ -28,7 +28,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <section className='flex items-center justify-center'>
+      <section className='flex items-center justify-center flex-col'>
         <img src="/images/logo.svg"/>
 
         <h2>Welcome to Quester</h2>

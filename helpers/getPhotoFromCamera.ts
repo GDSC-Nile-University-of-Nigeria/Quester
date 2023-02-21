@@ -3,7 +3,7 @@ import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 export const getPhoto = async() => {
     const photo = await Camera.getPhoto({
         quality: 100,
-        source: CameraSource.Camera,
+        source: CameraSource.Prompt,
         resultType: CameraResultType.Base64
     });
     return {

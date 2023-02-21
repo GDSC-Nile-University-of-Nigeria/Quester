@@ -45,7 +45,7 @@ const AddQuestionPaper: NextPage = () => {
         const title = entries.title.toString().replaceAll(' ', '-')
         
         if(pastQuestion.source === 'camera'){
-            const url = await uploadPicture(`images/${title}-${entries.year}`, pastQuestion.data)
+            const url = await uploadPicture(`images/${title}-${entries.type}-${entries.year}`, pastQuestion.data)
             const data: PastQuestion = {
                 department: entries.department as string,
                 course: {
@@ -57,7 +57,7 @@ const AddQuestionPaper: NextPage = () => {
                 type: entries.type as "Midterm"|"Final Exam"|"Quiz"
             }
             
-            const firestoreWrite = await addNewDocument('past-puestions', data)
+            const firestoreWrite = await addNewDocument('past-questions', data)
             firestoreWrite === 'success' ? showToast("Sucessfully added") : showToast("Failed to add")
 
 
@@ -75,7 +75,7 @@ const AddQuestionPaper: NextPage = () => {
             }
 
             
-            const firestoreWrite = await addNewDocument('past-puestions', data)
+            const firestoreWrite = await addNewDocument('past-questions', data)
             firestoreWrite === 'success' ? showToast("Sucessfully added") : showToast("Failed to add")
         }
         //Change Alert to Something Better
