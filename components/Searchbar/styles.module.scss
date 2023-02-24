@@ -1,0 +1,20 @@
+.Searchbar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: 5px;
+    background-color: rgba(92, 135, 230, 0.15);
+    padding: 4px 8px;
+    box-sizing: border-box;
+    gap: 10px;
+}
+
+.SearchInput {
+
+
+    &::-webkit-search-cancel-button {
+        color: white !important;
+        background-color: var(--primary);
+        border-radius: 50%;
+    }
+}
