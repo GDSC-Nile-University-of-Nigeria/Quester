@@ -1,14 +1,14 @@
 import { NextPage } from "next";
 import { Tabs } from "../../components/Tabs";
 import { auth, firestore } from "../../environments/firebase.utils";
-import { Avatar, Button, IconButton, InputBase, List, ListItem, ListItemAvatar, ListItemButton, ListItemIcon, ListItemText, ListSubheader } from "@mui/material";
+import { Avatar, Button, IconButton, InputBase, List, ListItem, ListItemAvatar, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Skeleton } from "@mui/material";
 import { FaSearch } from "react-icons/fa";
 import styles from "../../styles/Home.module.scss"
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useDebouce } from "../../hooks/useDebouce";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getDocumentFromFirestore, getDocumentsFromFirestore, updateDocInFirestore } from "../../firebase";
-import { arrayUnion, collection, query, where } from "firebase/firestore";
+import { arrayUnion, collection, limit, query, where } from "firebase/firestore";
 import { PastQuestionsContext } from "../../contexts/PastQuestions";
 import { MdDownload, MdFolder, MdNotifications } from "react-icons/md";
 import { BsFilterLeft } from "react-icons/bs";
@@ -33,6 +33,9 @@ const HomePage: NextPage = () => {
         year?:string, department?:string, level?:string
     }>({ year: '', department: '', level: ''});
 
+    const [similar, setSimilar] = useState<{
+        isLoading?: boolean, data: PastQuestion[], error: unknown
+    }>({ isLoading: false, data: [], error: null });
 
     const { isLoading, data } = useQuery(["recent-past-questions"], async () => {
         const data = await getDocumentsFromFirestore(ref, false)
@@ -49,14 +52,44 @@ const HomePage: NextPage = () => {
         !filter.level ? [] : where('course.level', '==', filter.level)
     ].flat();
 
-    const { isLoading: loading, data: similar, mutateAsync } = useMutation(["similar"], async() => {
+    const fetchSimilar = async () => {
+        if(!currentUser) return;
+        try {
+            setSimilar({ isLoading: true, data: [], error: null })
+            const profile = await getDocumentFromFirestore(`users/${currentUser?.uid}`, false);
+            const queryRef = query(ref, where('department', '==', profile?.department), limit(5))
+            const similarQuestions = await getDocumentsFromFirestore(queryRef, false) as any[];
+            if(similarQuestions.length === 0) {
+                const queryRef = query(ref, limit(5))
+                const allQuestions = await getDocumentsFromFirestore(queryRef) as any[];
+                setSimilar({ isLoading: false, data: allQuestions, error: null });
+            }
+            setSimilar({ isLoading: false, data: similarQuestions ?? [], error: null });
+        } catch (e) {
+            setSimilar({ isLoading: false, data: [], error: e })
+        }
+    }
+
+   
+
+    useMemo(() => {
+        fetchSimilar()
+    }, [currentUser])
+
+    /*
+    const { isLoading: loading, data: similarQ } = useMutation(["similar"], async() => {
         if(!currentUser) return;
         const profile = await getDocumentFromFirestore(`users/${currentUser?.uid}`, false);
-        const queryRef = query(ref, where('department', '==', profile?.department))
-        const similarQuestions = await getDocumentsFromFirestore(queryRef) as any[];
-        console.log(similarQuestions ?? [])
-        return similarQuestions;
-    })
+        const queryRef = query(ref, where('department', '==', profile?.department.name), limit(5))
+        const similarQuestions = await getDocumentsFromFirestore(queryRef, false) as any[];
+        console.log(similarQuestions)
+        if(similarQuestions.length === 0) {
+            const queryRef = query(ref, limit(5))
+            const allQuestions = await getDocumentsFromFirestore(queryRef) as any[];
+            return allQuestions;
+        }
+        return similarQuestions ?? [];
+    })*/
     
     const { isLoading: filteredLoading, data: filteredResults, mutate } = useMutation({
         mutationKey: ["filtered-results", filter.year??"unset", filter.level??"unset", filter.department??"unset" ],
@@ -113,18 +146,50 @@ const HomePage: NextPage = () => {
             </h2>
             <Searchbar/>
 
-            <div>
+            <div className={styles.container}>
+                <h3>You may be interested in</h3>
+                <div className={styles.Slides}>
+                    {
+                        similar.isLoading ? 
+                        <>
+                            <div className={styles.slide}/>
+                            <div className={styles.slide}/>
+                            <div className={styles.slide}/>
+                            <div className={styles.slide}/>
+                        </> : null
+                    }
+                    {
+                        similar?.data?.map((question: PastQuestion) => (
+                            <Link 
+                                key={`${question.course.name}-${question.year}`}
+                                href={question.image_url} 
+                                target="_blank" rel="noopener"
+                            >
+                                <div 
+                                    key={`${question.course.name}-${question.year}`}
+                                    className={styles.slide}
+                                >
+                                    <h3>{question.course.name}</h3>
+                                    <p>{question.year}</p>
+                                </div>                            
+                            </Link>
+                        ))
+                    }
+                </div>
+            </div>
+
+            <div className={styles.container}>
                 <h3>Filtered Results</h3>
                 <List
                     subheader={
-                        <ListSubheader>
+                        <ListSubheader disableGutters>
                             Press the filter icon at the top left
                         </ListSubheader>
                     }
                 >
-                    { isLoading ? <p>Loading...</p> : null }
+                    { filteredLoading ? <p>Loading...</p> : null }
                     {
-                        !isLoading && data === undefined ? <p>No questions matching the criteria have been added yet</p>:
+                        !filteredLoading && filteredResults?.length === 0 ? <p>No questions matching the criteria have been added yet</p>:
                         filteredResults?.map((question:PastQuestion) => (
                             <ListItem
                                 disablePadding

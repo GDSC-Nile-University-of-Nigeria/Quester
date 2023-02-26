@@ -8,13 +8,16 @@ import { getDocumentFromFirestore, updateDocInFirestore } from "../../../firebas
 import { updateProfile } from "firebase/auth";
 import { DEPARTMENTS } from "../../../helpers/departments";
 import { Select } from "../../../components/Input/select";
+import { BackButton } from "../../../components/BackButton";
 
 const EditPersonalProfilePage: NextPage = () => {
     const { currentUser } = auth;
 
     const { isLoading, data:profile } = useQuery(["user-profile"], async () => {
         if(!currentUser) return;
+        console.log(currentUser.uid)
         const data = await getDocumentFromFirestore(`users/${currentUser?.uid}`, false)
+        console.log(data);
         return data as User
     })
 
@@ -43,39 +46,40 @@ const EditPersonalProfilePage: NextPage = () => {
     }
     return(
         <main>
-            <h2>Update Personal Information</h2>
-            <form className={styles.EditProfile}>
+            <BackButton/>
+            <h3>Update Personal Information</h3>
+            <form onSubmit={submitForm} className={styles.EditProfile}>
                 <TextField
                     sx={inputStyles}
                     name="name"
                     label="Name"
-                    value={currentUser?.displayName}
+                    defaultValue={currentUser?.displayName ?? " "}
                 />
                 <TextField
                     sx={inputStyles}
                     name="id_number"
                     label="ID Number"
-                    value={profile?.student_id}
+                    defaultValue={profile?.student_id ?? " "}
                 />
                 <TextField
                     sx={inputStyles}
                     name="level"
                     label="Level"
-                    value={profile?.level}
+                    defaultValue={profile?.level ?? " "}
                 />
                 <TextField
                     sx={inputStyles}
                     type="email"
                     name="email"
                     label="Email"
-                    value={profile?.email}
+                    defaultValue={profile?.email ?? " "}
                 />
 
                 <Select
                     labelName="Department"
                     placeholder="eg. Computer Science"
                     name="department"
-                    value={profile?.department}
+                    value={profile?.department ?? " "}
                 >
                 {
                     DEPARTMENTS.map((department) => (
