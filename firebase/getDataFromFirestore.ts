@@ -48,6 +48,7 @@ export const getDocumentsFromFirestore = async (query:Query, realtimeUpdates:boo
                     console.error(error.code, error.message)
                 })
             })
+            return documents ?? []
             
         } else {
             
@@ -57,7 +58,7 @@ export const getDocumentsFromFirestore = async (query:Query, realtimeUpdates:boo
             })
         }
         
-        return documents || [];
+        return documents ?? [];
     } catch (e) {
         console.error(e)
     }

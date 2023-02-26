@@ -13,6 +13,7 @@ import { Level, PastQuestion } from "../../types";
 import { Select } from "../../components/Input/select";
 import { DEPARTMENTS } from "../../helpers/departments";
 import { showToast } from "../../helpers/showToast";
+import { BackButton } from "../../components/BackButton";
 
 const AddQuestionPaper: NextPage = () => {
     const [pastQuestion, setPastQuestion] = useState<{
@@ -82,6 +83,7 @@ const AddQuestionPaper: NextPage = () => {
     }
     return(
         <main>
+            <BackButton/>
             <form onSubmit={upload}>
                 <h2>Upload</h2>
                 <Input
@@ -171,7 +173,6 @@ const AddQuestionPaper: NextPage = () => {
                     Upload
                 </button>
             </form>
-            <Tabs/>
         </main>
     )
 }

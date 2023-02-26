@@ -11,6 +11,11 @@ h1, h2, h3 {
   margin: 5px 0;
 }
 
+p {
+  font-family: 'Outfit', sans-serif;
+  margin: 5px 0;
+}
+
 .flex { display: flex; }
 .align-center { item-align: center; }
 .justify-center { justify-content: center; }
