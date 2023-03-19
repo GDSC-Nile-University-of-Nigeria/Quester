@@ -8,9 +8,15 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { AlertColor } from "@mui/material";
 import { Toast } from "../../components/Toast";
+import { Preferences } from '@capacitor/preferences';
+import { getDocumentFromFirestore } from "../../firebase";
+import { useAtom } from "jotai";
+import { currentUserAtom } from "../../jotai";
+import { User } from "../../types";
 
 const LoginPage: NextPage = () => {
     const router = useRouter();
+    const [currentUser, setCurrentUser] = useAtom(currentUserAtom)
     const [toast, setToast] = useState<{
         open: boolean; message: string, color?:AlertColor}>({ open: false, message: '' });
 
@@ -26,11 +32,20 @@ const LoginPage: NextPage = () => {
         const entries = Object.fromEntries(data)
 
         try {
-            await signInWithEmailAndPassword(auth, entries.email as string, entries.password as string)
+            const { user } = await signInWithEmailAndPassword(auth, entries.email as string, entries.password as string)
+            const [profileInfo, _] = await Promise.all([
+                await getDocumentFromFirestore(`users/${user.uid}`),
+                await Preferences.set({
+                    key: 'user_id',
+                    value: user.uid
+                })
+            ])
+            setCurrentUser(profileInfo! as User)
             setToast({ open: true, message: "Sign In Sucessful", color: "success" });
-            router.push("/dashboard/home")
+            return router.push("/dashboard/home")
+
         } catch (err:any) {
-            setToast({ open: true, message: err.code, color: "error" });
+            return setToast({ open: true, message: err.code, color: "error" });
         }
     }
 
