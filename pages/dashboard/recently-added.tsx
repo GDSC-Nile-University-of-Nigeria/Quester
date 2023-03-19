@@ -1,4 +1,4 @@
-import { AppBar, Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText, Toolbar } from "@mui/material";
+import { AppBar, Avatar, Box, CircularProgress, Container, IconButton, List, ListItem, ListItemAvatar, ListItemText, Toolbar } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { ref } from "firebase/storage";
 import { NextPage } from "next";
@@ -43,13 +43,17 @@ const RecentlyAddedPage:NextPage = () => {
                 </Toolbar>
             </AppBar>
 
+
             <List sx={{ marginTop: 7 }}>
-                { isLoading ? <p>Loading...</p> : null }
+                { isLoading ? 
+                    <CircularProgress />
+                    
+                    : null }
                 {
                     !isLoading && data === undefined ? <p>Noquestions have been added yet</p>:
                     data?.map((question:PastQuestion) => (
                         <ListItem
-                            key={`${question.course.name}-${question.year}`}
+                            key={`${question.course.name}-${question.year}-${question.type}`}
                             secondaryAction={
                                 <IconButton 
                                     onClick={() => addToDownloads(question)}

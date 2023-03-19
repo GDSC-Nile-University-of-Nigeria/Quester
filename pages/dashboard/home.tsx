@@ -1,18 +1,17 @@
-import { NextPage } from "next";
+import { GetServerSideProps, GetStaticProps, NextPage } from "next";
 import { Tabs } from "../../components/Tabs";
 import { auth, firestore } from "../../environments/firebase.utils";
 import { Avatar, Button, IconButton, InputBase, List, ListItem, ListItemAvatar, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Skeleton } from "@mui/material";
 import { FaSearch } from "react-icons/fa";
 import styles from "../../styles/Home.module.scss"
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDebouce } from "../../hooks/useDebouce";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getDocumentFromFirestore, getDocumentsFromFirestore, updateDocInFirestore } from "../../firebase";
-import { arrayUnion, collection, limit, query, where } from "firebase/firestore";
-import { PastQuestionsContext } from "../../contexts/PastQuestions";
+import { arrayUnion, collection, doc, getDoc, limit, query, where } from "firebase/firestore";
 import { MdDownload, MdFolder, MdNotifications } from "react-icons/md";
 import { BsFilterLeft } from "react-icons/bs";
-import { PastQuestion } from "../../types";
+import { PastQuestion, User } from "../../types";
 import Head from "next/head";
 import { Searchbar } from "../../components/Searchbar";
 import { Select } from "../../components/Input/select";
@@ -20,11 +19,19 @@ import { greetByTime } from "../../helpers/greetByTime";
 import { BottomSheet } from "../../components/BottomSheet";
 import { DEPARTMENTS } from "../../helpers/departments";
 import Link from "next/link";
+import { useSimilarQuestions } from "../../hooks/useSimilarQuestions";
+import { Preferences } from "@capacitor/preferences";
+import { useRouter } from "next/router";
+import { currentUserAtom } from "../../jotai";
+import { useAtom } from "jotai";
+
 
 const HomePage: NextPage = () => {
-    const { currentUser } = auth;
+    const router = useRouter();
+    const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
     const [modalOpen, setModalOpen] = useState<boolean>(false)
     const [queryString, setQueryString] = useState("");
+    const [userId, setUserId] = useState<string>("")
     //const { debouncedValue } = useDebouce(queryString);
     const ref = collection(firestore, "past-questions");
     const profileRef = collection(firestore, "users");
@@ -32,10 +39,6 @@ const HomePage: NextPage = () => {
     const [filter, setFilter] = useState<{
         year?:string, department?:string, level?:string
     }>({ year: '', department: '', level: ''});
-
-    const [similar, setSimilar] = useState<{
-        isLoading?: boolean, data: PastQuestion[], error: unknown
-    }>({ isLoading: false, data: [], error: null });
 
     const { isLoading, data } = useQuery(["recent-past-questions"], async () => {
         const data = await getDocumentsFromFirestore(ref, false)
@@ -46,50 +49,30 @@ const HomePage: NextPage = () => {
             //console.log(data)
         }
     })  
+
+    const { isLoading: fetchingCurrentUser, error } = useQuery(["current-user"], async () => {
+        const res = await Preferences.get({
+            key: 'user_id'
+        })
+
+        if(!res.value) {
+            return router.replace('/login')
+        }
+        setUserId(res.value)
+
+        const userRef = doc(firestore, "users", res.value);
+        const snapshot: any = await getDoc(userRef);
+        const user = { id: snapshot.id, ...snapshot.data() } as User
+        return setCurrentUser(user)
+    })
     const queryContraints = [
         !filter.year ? [] : where('year', '==', filter.year) ,
         !filter.department ? [] : where('department', '==', filter.department),
         !filter.level ? [] : where('course.level', '==', filter.level)
     ].flat();
 
-    const fetchSimilar = async () => {
-        if(!currentUser) return;
-        try {
-            setSimilar({ isLoading: true, data: [], error: null })
-            const profile = await getDocumentFromFirestore(`users/${currentUser?.uid}`, false);
-            const queryRef = query(ref, where('department', '==', profile?.department), limit(5))
-            const similarQuestions = await getDocumentsFromFirestore(queryRef, false) as any[];
-            if(similarQuestions.length === 0) {
-                const queryRef = query(ref, limit(5))
-                const allQuestions = await getDocumentsFromFirestore(queryRef) as any[];
-                setSimilar({ isLoading: false, data: allQuestions, error: null });
-            }
-            setSimilar({ isLoading: false, data: similarQuestions ?? [], error: null });
-        } catch (e) {
-            setSimilar({ isLoading: false, data: [], error: e })
-        }
-    }
 
-   
-
-    useMemo(() => {
-        fetchSimilar()
-    }, [currentUser])
-
-    /*
-    const { isLoading: loading, data: similarQ } = useMutation(["similar"], async() => {
-        if(!currentUser) return;
-        const profile = await getDocumentFromFirestore(`users/${currentUser?.uid}`, false);
-        const queryRef = query(ref, where('department', '==', profile?.department.name), limit(5))
-        const similarQuestions = await getDocumentsFromFirestore(queryRef, false) as any[];
-        console.log(similarQuestions)
-        if(similarQuestions.length === 0) {
-            const queryRef = query(ref, limit(5))
-            const allQuestions = await getDocumentsFromFirestore(queryRef) as any[];
-            return allQuestions;
-        }
-        return similarQuestions ?? [];
-    })*/
+    const similar = useSimilarQuestions()
     
     const { isLoading: filteredLoading, data: filteredResults, mutate } = useMutation({
         mutationKey: ["filtered-results", filter.year??"unset", filter.level??"unset", filter.department??"unset" ],
@@ -126,23 +109,25 @@ const HomePage: NextPage = () => {
                 </IconButton>
 
                 <div className="flex align-center">
-                    <IconButton href="/dashboard/recently-added">
-                        <MdNotifications/>
-                    </IconButton>
+                    <Link href="/dashboard/recently-added">
+                        <IconButton>
+                            <MdNotifications/>
+                        </IconButton>
+                    </Link>
                     <Link href="/dashboard/profile">
                         <IconButton>
                             <Avatar 
-                                src={currentUser?.photoURL as string}
+                                src={currentUser?.profile_url}
                                 sx={{ width: 24, height: 24 }}
                             >
-                                {currentUser?.displayName?.charAt(0)}
+                                {currentUser?.name?.charAt(0)}
                             </Avatar>
                         </IconButton>
                     </Link>
                 </div>
             </div>
             <h2 className={styles.Greeting}>
-                {greetByTime()} {currentUser?.displayName?.split(' ')[0]}
+                {greetByTime()} {currentUser?.name?.split(' ')[0]}
             </h2>
             <Searchbar/>
 
@@ -159,9 +144,9 @@ const HomePage: NextPage = () => {
                         </> : null
                     }
                     {
-                        similar?.data?.map((question: PastQuestion) => (
+                        similar?.data?.map((question: PastQuestion, index: number) => (
                             <Link 
-                                key={`${question.course.name}-${question.year}`}
+                                key={index}
                                 href={question.image_url} 
                                 target="_blank" rel="noopener"
                             >
