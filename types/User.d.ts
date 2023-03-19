@@ -10,4 +10,5 @@ export interface User {
     email?: string;
     downloads?: PastQuestion[];
     recents?: PastQuestion[];
+    profile_url?: string;
 }
