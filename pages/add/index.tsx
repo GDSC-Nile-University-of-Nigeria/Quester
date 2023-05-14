@@ -13,12 +13,28 @@ import { Level, PastQuestion } from "../../types";
 import { Select } from "../../components/Input/select";
 import { DEPARTMENTS } from "../../helpers/departments";
 import { showToast } from "../../helpers/showToast";
+import { BackButton } from "../../components/BackButton";
+import { Toast } from "../../components/Toast";
+import { AlertColor, IconButton } from "@mui/material";
+
+interface FormState {
+    isLoading: boolean;
+    error?: unknown;
+}
+interface PastQuestionSubmission {
+    data: any;
+    source: 'camera'|'file';
+}
 
 const AddQuestionPaper: NextPage = () => {
-    const [pastQuestion, setPastQuestion] = useState<{
-        data: any, source: 'camera'|'file'
-    }|undefined>(undefined);
-
+    const [pastQuestion, setPastQuestion] = useState<PastQuestionSubmission|undefined>(undefined);
+    const [formState, setFormState] = useState<FormState>({ isLoading: false, error: null });
+    const [toast, setToast] = useState({ 
+        isOpen: false, 
+        message: '', 
+        color: '', 
+    })
+    const formRef = useRef<HTMLFormElement>(null);
 
     const getFileFromInput = (e:any) => {
         const file = e.target.files[0]
@@ -27,8 +43,6 @@ const AddQuestionPaper: NextPage = () => {
         }
         setPastQuestion({ data: file, source: 'file' })
         //uploadFile('files/test.pdf', e.target.files[0])
-
-
     }
 
     const captureImage = async () => {
@@ -40,49 +54,63 @@ const AddQuestionPaper: NextPage = () => {
         e.preventDefault();
         if(!pastQuestion) return
 
+        setFormState({ isLoading: true, error: null })
         const data = new FormData(e.target);
         const entries = Object.fromEntries(data);
         const title = entries.title.toString().replaceAll(' ', '-')
         
-        if(pastQuestion.source === 'camera'){
-            const url = await uploadPicture(`images/${title}-${entries.type}-${entries.year}`, pastQuestion.data)
-            const data: PastQuestion = {
-                department: entries.department as string,
-                course: {
-                    name: title,
-                    level: entries.level as Level
-                },
-                year: entries.year as string,
-                image_url: url as string,
-                type: entries.type as "Midterm"|"Final Exam"|"Quiz"
+        try {
+            if(pastQuestion.source === 'camera'){
+                const url = await uploadPicture(`images/${title}-${entries.type}-${entries.year}`, pastQuestion.data)
+                const data: PastQuestion = {
+                    department: entries.department as string,
+                    course: {
+                        name: title,
+                        level: entries.level as Level
+                    },
+                    year: entries.year as string,
+                    image_url: url as string,
+                    type: entries.type as "Midterm"|"Final Exam"|"Quiz"
+                }
+                
+                const firestoreWrite = await addNewDocument('past-questions', data)
+                firestoreWrite === 'success' ? 
+                setToast({ isOpen: true, message: "Successfully uploaded!", color: "success" }) : 
+                setToast({ isOpen: true, message: "Failed to upload", color: "error" })
+    
+    
+            } else if(pastQuestion.source === 'file') {
+                const url = await uploadFile(`files/${title}-${entries.type}-${entries.year}`, pastQuestion.data)
+                const data: PastQuestion = {
+                    department: entries.department as string,
+                    course: {
+                        name: title,
+                        level: entries.level as Level
+                    },
+                    year: entries.year as string,
+                    image_url: url as string,
+                    type: entries.type as "Midterm"|"Final Exam"|"Quiz"
+                }
+    
+                
+                const firestoreWrite = await addNewDocument('past-questions', data)
+                firestoreWrite === 'success' ? 
+                setToast({ isOpen: true, message: "Successfully uploaded!", color: "success" }) : 
+                setToast({ isOpen: true, message: "Failed to upload", color: "error" })
             }
-            
-            const firestoreWrite = await addNewDocument('past-questions', data)
-            firestoreWrite === 'success' ? showToast("Sucessfully added") : showToast("Failed to add")
-
-
-        } else if(pastQuestion.source === 'file') {
-            const url = await uploadFile(`files/${title}-${entries.type}-${entries.year}`, pastQuestion.data)
-            const data: PastQuestion = {
-                department: entries.department as string,
-                course: {
-                    name: title,
-                    level: entries.level as Level
-                },
-                year: entries.year as string,
-                image_url: url as string,
-                type: entries.type as "Midterm"|"Final Exam"|"Quiz"
-            }
-
-            
-            const firestoreWrite = await addNewDocument('past-questions', data)
-            firestoreWrite === 'success' ? showToast("Sucessfully added") : showToast("Failed to add")
+            //Change Alert to Something Better
+            formRef.current?.reset()
+        } catch (err) {
+            setToast({isOpen: true, message: "Error while uploading document", color: "error"})
+            setFormState({ isLoading: false, error: err })
+        } finally {
+            setFormState({ isLoading: false})
         }
-        //Change Alert to Something Better
     }
     return(
         <main>
-            <form onSubmit={upload}>
+            <BackButton/>
+            <form ref={formRef} onSubmit={upload}>
                 <h2>Upload</h2>
                 <Input
                     labelName="Course Title"
@@ -149,12 +177,9 @@ const AddQuestionPaper: NextPage = () => {
                 }
 
                 <div>
-                    <span>
-                        <MdCamera 
-                            onClick={captureImage} 
-                            size={30}
-                        />
-                    </span>
+                    <IconButton onClick={captureImage}>
+                        <MdCamera size={30}/>
+                    </IconButton>
                     <input 
                         type="file" 
                         id="upload-file" 
@@ -162,16 +187,27 @@ const AddQuestionPaper: NextPage = () => {
                         title="File" 
                         onChange={getFileFromInput} 
                     />
-                    <label htmlFor="upload-file">
-                        <MdFileUpload size={30}/>
-                    </label>
+                    <IconButton>
+                        <label htmlFor="upload-file">
+                            <MdFileUpload size={30}/>
+                        </label>
+                    </IconButton>
                 </div>
 
-                <button className={`${styles.button}`}>
-                    Upload
+                <button 
+                    disabled={formState.isLoading}
+                    className={styles.button}
+                >
+                    {formState.isLoading ? "..." : "Upload"}
                 </button>
+
+                <Toast
+                    isOpen={toast.isOpen}
+                    color={toast.color as AlertColor}
+                    onClose={() => setToast({isOpen: false, color: "", message: ""})}
+                    message={toast.message}
+                />
             </form>
-            <Tabs/>
         </main>
     )
 }

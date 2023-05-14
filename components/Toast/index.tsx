@@ -1,5 +1,5 @@
 import { Alert, AlertColor, Snackbar } from "@mui/material"
-
+import styles from "./styles.module.scss";
 interface ToastProps {
     color?: AlertColor,
     isOpen: boolean,
@@ -13,7 +13,7 @@ export const Toast: React.FC<ToastProps> =
         
         return(
             <Snackbar open={isOpen} onClose={rest.onClose} autoHideDuration={duration}>
-                <Alert {...rest}>
+                <Alert className={styles.toast} {...rest}>
                     {message}
                 </Alert>
             </Snackbar>

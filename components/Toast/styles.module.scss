@@ -1,0 +1,15 @@
+.toast {
+    width: 90%;
+}
+
+@media screen and (min-width: 768px) {
+    .toast {
+        width: 50%;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .toast {
+        width: 30%;
+    }
+}

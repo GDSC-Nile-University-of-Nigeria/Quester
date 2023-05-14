@@ -9,5 +9,6 @@ export interface User {
     student_id?: string;
     email?: string;
     downloads?: PastQuestion[];
-    recents: PastQuestion[];
+    recents?: PastQuestion[];
+    profile_url?: string;
 }
